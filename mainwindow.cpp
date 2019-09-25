@@ -19,12 +19,15 @@ MainWindow::MainWindow(QWidget *parent)
             rightLayout->addSpacing(25);
             media_gView.setScene(&media_gScene);
             rightLayout->addWidget(&media_gView);
-            media_gView.setFixedSize(300, 200);
+            media_gView.setFixedSize(330, 200);
             media_progress = new QSlider(Qt::Horizontal, centralWidget());
-            media_progress->setFixedSize(265, 20);
+            media_progress->setFixedSize(240, 20);
             media_time = new QLabel("00:00", centralWidget());
-            media_time->setFixedSize(35, 16);
+            media_time->setFixedSize(30, 16);
+            media_cur_time = new QLabel("00:00", centralWidget());
+            media_cur_time->setFixedSize(30, 16);
             QHBoxLayout * progressLayout = new QHBoxLayout();
+                progressLayout->addWidget(media_cur_time, 0, Qt::AlignTop);
                 progressLayout->addWidget(media_progress, 0, Qt::AlignTop);
                 progressLayout->addWidget(media_time, 0, Qt::AlignTop);
             rightLayout->addLayout(progressLayout);
@@ -41,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     timer_progress = new QTimer(this);
     connect(timer_progress, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
-    timer_progress->start(1000);
+    timer_progress->start(100);
 }
 
 MainWindow::~MainWindow() {
@@ -100,7 +103,20 @@ void MainWindow::on_actionStop_triggered() {
 }
 
 void MainWindow::updateProgressTimer(){
-    media_progress->setMaximum(static_cast<int>(media_player->duration()));
+    media_progress->setMaximum(static_cast<int>(media_player->metaData("Duration").toInt()));
     media_progress->setMinimum(0);
     media_progress->setSliderPosition(static_cast<int>(media_player->position()));
+
+    int maxSecs = static_cast<int>(media_player->metaData("Duration").toInt()) / 1000;
+    int maxMins = maxSecs / 60;
+    maxSecs -= maxMins * 60;
+    std::stringstream maxTimeText;
+    maxTimeText << (maxMins<10?"0":"") << maxMins << ":" << (maxSecs<10?"0":"") << maxSecs;
+    media_time->setText(QString::fromStdString(maxTimeText.str()));
+
+    int curSecs = static_cast<int>(media_player->position()) / 1000;
+    int curMins = curSecs / 60;
+    std::stringstream minTimeText;
+    minTimeText << (curMins<10?"0":"") << curMins << ":" << (curSecs<10?"0":"") << curSecs;
+    media_cur_time->setText(QString::fromStdString(minTimeText.str()));
 }

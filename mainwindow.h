@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <sstream>
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QFileDialog>
@@ -57,6 +58,6 @@ private:
     QListWidget * media_list;
     QGraphicsView media_gView;
     QSlider * media_progress;
-    QLabel * media_time;
+    QLabel *media_time, *media_cur_time;
 };
 #endif // MAINWINDOW_H
