@@ -44,6 +44,7 @@ private slots:
     void on_actionStop_triggered();
 
     void updateProgressTimer();
+    void updateMedia();
 
 private:
     Ui::MainWindow *ui;

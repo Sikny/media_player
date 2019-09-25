@@ -8,6 +8,10 @@ MainWindow::MainWindow(QWidget *parent)
     this->loaded_files = new QMediaPlaylist(media_player);
     media_player->setPlaylist(loaded_files);
 
+    timer_progress = new QTimer(this);
+    connect(timer_progress, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
+    timer_progress->start(100);
+
     QHBoxLayout *mainLayout = new QHBoxLayout();
         QGroupBox * grpMediaList = new QGroupBox(tr("Current queue"), centralWidget());
             QVBoxLayout *boxLayout = new QVBoxLayout(grpMediaList);
@@ -22,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
             media_gView.setFixedSize(330, 200);
             media_progress = new QSlider(Qt::Horizontal, centralWidget());
             media_progress->setFixedSize(240, 20);
+            connect(media_progress, SIGNAL(sliderReleased()), this, SLOT(updateMedia()));
+            connect(media_progress, SIGNAL(sliderPressed()), timer_progress, SLOT(stop()));
             media_time = new QLabel("00:00", centralWidget());
             media_time->setFixedSize(30, 16);
             media_cur_time = new QLabel("00:00", centralWidget());
@@ -41,10 +47,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(loaded_files, SIGNAL(mediaInserted(int, int)), this, SLOT(updateQueue(int, int)));
     connect(this, SIGNAL(hasMedia(bool)), this, SLOT(enableButtons(bool)));
-
-    timer_progress = new QTimer(this);
-    connect(timer_progress, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
-    timer_progress->start(100);
 }
 
 MainWindow::~MainWindow() {
@@ -116,7 +118,13 @@ void MainWindow::updateProgressTimer(){
 
     int curSecs = static_cast<int>(media_player->position()) / 1000;
     int curMins = curSecs / 60;
+    curSecs -= curMins * 60;
     std::stringstream minTimeText;
     minTimeText << (curMins<10?"0":"") << curMins << ":" << (curSecs<10?"0":"") << curSecs;
     media_cur_time->setText(QString::fromStdString(minTimeText.str()));
+}
+
+void MainWindow::updateMedia(){
+    media_player->setPosition(media_progress->value());
+    timer_progress->start();
 }
