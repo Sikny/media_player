@@ -7,6 +7,13 @@ MainWindow::MainWindow(QWidget *parent)
     FMOD_System_Create(&fmod_system);
     FMOD_System_Init(fmod_system, 2, FMOD_INIT_NORMAL, nullptr);
 
+    FMOD_System_GetMasterChannelGroup(fmod_system, &master_group);
+
+    FMOD_System_CreateDSPByType(fmod_system, FMOD_DSP_TYPE_FFT, &dsp);
+    FMOD_ChannelGroup_AddDSP(master_group, 0, dsp);
+
+    FMOD_DSP_SetBypass(dsp, false);
+
     loaded_files = new QMediaPlaylist(this);
 
     timer_progress = new QTimer(this);
@@ -22,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
         mainLayout->addWidget(grpMediaList);
         QVBoxLayout *rightLayout = new QVBoxLayout();
             rightLayout->addSpacing(25);
-            media_gView = new OpenGLArea(this);
+            media_gView = new GraphicsArea(this);
             rightLayout->addWidget(media_gView);
             media_gView->setFixedSize(330, 200);
             media_progress = new QSlider(Qt::Horizontal, centralWidget());
@@ -104,7 +111,7 @@ void MainWindow::on_actionPlay_triggered() {
     if(current_channel != nullptr){
         FMOD_Channel_GetPaused(current_channel, &pauseStatus);
     }
-   if(!pauseStatus){
+    if(!pauseStatus){
         FMOD_System_PlaySound(fmod_system, current_media, nullptr, false, &current_channel);
     } else
         FMOD_Channel_SetPaused(current_channel, false);
@@ -145,6 +152,8 @@ void MainWindow::updateProgressTimer(){
         minTimeText << (curMins<10?"0":"") << curMins << ":" << (curSecs<10?"0":"") << curSecs;
         media_cur_time->setText(QString::fromStdString(minTimeText.str()));
 
+        updateRenderArea();
+
         if(position == media_length) on_actionNext_triggered();
     }
 }
@@ -157,8 +166,21 @@ void MainWindow::updateMedia(){
     }
 }
 
-void MainWindow::setPixel(int x, int y){
-    //media_gScene->addLine(x, 0, x, y, QPen(QColor(255, 0, 0)));
+void MainWindow::updateRenderArea(){
+    // getting data
+    FMOD_DSP_PARAMETER_FFT *fft = nullptr;
+    FMOD_DSP_GetParameterData(dsp, FMOD_DSP_FFT_SPECTRUMDATA, (void**)&fft, nullptr, nullptr ,0);
+
+    // passing data to renderer
+    float* data = new float[fft->length];
+    for(int i = 0; i < fft->length; i++){
+        data[i] = fft->spectrum[0][i];
+    }
+    media_gView->setValues(data, static_cast<unsigned int>(fft->length));
+
+    // deleting temp pointers
+    delete [] data;
+    data = nullptr;
 }
 
 void MainWindow::on_actionNext_triggered() {

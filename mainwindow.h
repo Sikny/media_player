@@ -15,7 +15,7 @@
 #include <QLabel>
 #include <QTimer>
 #include <fmod.h>
-#include "openglarea.h"
+#include "graphicsarea.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -46,25 +46,25 @@ private slots:
 
     void updateProgressTimer();
     void updateMedia();
+    void updateRenderArea();
 
     void on_actionNext_triggered();
-
     void on_actionPrevious_triggered();
 
 private:
-    void setPixel(int x, int y);
-
     Ui::MainWindow *ui;
 
     // CORE
     FMOD_SYSTEM* fmod_system;
     FMOD_CHANNEL* current_channel;
+    FMOD_CHANNELGROUP* master_group;
     FMOD_SOUND* current_media;
+    FMOD_DSP* dsp;
     QMediaPlaylist* loaded_files;
     QTimer* timer_progress;
 
     // OpenGL
-    OpenGLArea * media_gView;
+    GraphicsArea * media_gView;
 
     // UI
     QListWidget * media_list;
