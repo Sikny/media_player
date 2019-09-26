@@ -123,32 +123,36 @@ void MainWindow::on_actionStop_triggered() {
 }
 
 void MainWindow::updateProgressTimer(){
-    unsigned int media_length, position;
-    FMOD_Sound_GetLength(current_media, &media_length, FMOD_TIMEUNIT_MS);
-    media_progress->setMaximum(static_cast<int>(media_length));
-    media_progress->setMinimum(0);
-    FMOD_Channel_GetPosition(current_channel, &position, FMOD_TIMEUNIT_MS);
-    media_progress->setSliderPosition(static_cast<int>(position));
+    if(current_channel != nullptr){
+        unsigned int media_length, position;
+        FMOD_Sound_GetLength(current_media, &media_length, FMOD_TIMEUNIT_MS);
+        media_progress->setMaximum(static_cast<int>(media_length));
+        media_progress->setMinimum(0);
+        FMOD_Channel_GetPosition(current_channel, &position, FMOD_TIMEUNIT_MS);
+        media_progress->setSliderPosition(static_cast<int>(position));
 
-    int maxSecs = static_cast<int>(media_length) / 1000;
-    int maxMins = maxSecs / 60;
-    maxSecs -= maxMins * 60;
-    std::stringstream maxTimeText;
-    maxTimeText << (maxMins<10?"0":"") << maxMins << ":" << (maxSecs<10?"0":"") << maxSecs;
-    media_time->setText(QString::fromStdString(maxTimeText.str()));
+        int maxSecs = static_cast<int>(media_length) / 1000;
+        int maxMins = maxSecs / 60;
+        maxSecs -= maxMins * 60;
+        std::stringstream maxTimeText;
+        maxTimeText << (maxMins<10?"0":"") << maxMins << ":" << (maxSecs<10?"0":"") << maxSecs;
+        media_time->setText(QString::fromStdString(maxTimeText.str()));
 
-    int curSecs = static_cast<int>(position) / 1000;
-    int curMins = curSecs / 60;
-    curSecs -= curMins * 60;
-    std::stringstream minTimeText;
-    minTimeText << (curMins<10?"0":"") << curMins << ":" << (curSecs<10?"0":"") << curSecs;
-    media_cur_time->setText(QString::fromStdString(minTimeText.str()));
+        int curSecs = static_cast<int>(position) / 1000;
+        int curMins = curSecs / 60;
+        curSecs -= curMins * 60;
+        std::stringstream minTimeText;
+        minTimeText << (curMins<10?"0":"") << curMins << ":" << (curSecs<10?"0":"") << curSecs;
+        media_cur_time->setText(QString::fromStdString(minTimeText.str()));
+    }
 }
 
 void MainWindow::updateMedia(){
-    FMOD_Channel_SetPosition(current_channel, static_cast<unsigned int>(media_progress->value()),
-                             FMOD_TIMEUNIT_MS);
-    timer_progress->start();
+    if(current_channel != nullptr){
+        FMOD_Channel_SetPosition(current_channel, static_cast<unsigned int>(media_progress->value()),
+                                 FMOD_TIMEUNIT_MS);
+        timer_progress->start();
+    }
 }
 
 void MainWindow::setPixel(int x, int y){
