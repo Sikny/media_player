@@ -48,6 +48,8 @@ private slots:
     void updateProgressTimer();
     void updateMedia();
 
+    void on_actionNext_triggered();
+
 private:
     void setPixel(int x, int y);
 

@@ -158,3 +158,17 @@ void MainWindow::updateMedia(){
 void MainWindow::setPixel(int x, int y){
     media_gScene->addLine(x, 0, x, y, QPen(QColor(255, 0, 0)));
 }
+
+void MainWindow::on_actionNext_triggered() {
+    if(loaded_files->currentIndex() < loaded_files->mediaCount()-1){
+        loaded_files->next();
+        int paused = 0;
+        FMOD_Channel_GetPaused(current_channel, &paused);
+        FMOD_Channel_Stop(current_channel);
+        FMOD_Sound_Release(current_media);
+        FMOD_System_CreateSound(fmod_system,
+                    loaded_files->currentMedia().canonicalUrl().toLocalFile().toStdString().c_str(),
+                    FMOD_DEFAULT, nullptr, &current_media);
+        FMOD_System_PlaySound(fmod_system, current_media, nullptr, paused, &current_channel);
+    }
+}
