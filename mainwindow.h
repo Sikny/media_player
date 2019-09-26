@@ -6,17 +6,18 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QStandardPaths>
-#include <QMediaPlayer>
-#include <QMediaPlaylist>
 #include <QBoxLayout>
 #include <QListWidget>
 #include <QGroupBox>
 #include <QGraphicsView>
 #include <QGraphicsScene>
+#include <QMediaPlaylist>
+#include <QMediaContent>
 #include <QToolBar>
 #include <QDebug>
 #include <QLabel>
 #include <QTimer>
+#include <fmod.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -32,6 +33,7 @@ public:
 
 signals:
     void hasMedia(bool);
+    void mediaInserted(int, int);
 
 private slots:
     void on_actionAbout_triggered();
@@ -47,17 +49,21 @@ private slots:
     void updateMedia();
 
 private:
+    void setPixel(int x, int y);
+
     Ui::MainWindow *ui;
 
     // CORE
-    QMediaPlayer * media_player;
-    QMediaPlaylist * loaded_files;
-    QGraphicsScene media_gScene;
+    FMOD_SYSTEM* fmod_system;
+    FMOD_CHANNEL* current_channel;
+    FMOD_SOUND* current_media;
+    QMediaPlaylist* loaded_files;
+    QGraphicsScene * media_gScene;
     QTimer* timer_progress;
 
     // UI
     QListWidget * media_list;
-    QGraphicsView media_gView;
+    QGraphicsView * media_gView;
     QSlider * media_progress;
     QLabel *media_time, *media_cur_time;
 };

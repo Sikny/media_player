@@ -2,11 +2,12 @@
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow) {
+    : QMainWindow(parent), ui(new Ui::MainWindow), current_channel(nullptr) {
     ui->setupUi(this);
-    this->media_player = new QMediaPlayer(this);
-    this->loaded_files = new QMediaPlaylist(media_player);
-    media_player->setPlaylist(loaded_files);
+    FMOD_System_Create(&fmod_system);
+    FMOD_System_Init(fmod_system, 2, FMOD_INIT_NORMAL, nullptr);
+
+    loaded_files = new QMediaPlaylist(this);
 
     timer_progress = new QTimer(this);
     connect(timer_progress, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
@@ -21,9 +22,11 @@ MainWindow::MainWindow(QWidget *parent)
         mainLayout->addWidget(grpMediaList);
         QVBoxLayout *rightLayout = new QVBoxLayout();
             rightLayout->addSpacing(25);
-            media_gView.setScene(&media_gScene);
-            rightLayout->addWidget(&media_gView);
-            media_gView.setFixedSize(330, 200);
+            media_gView = new QGraphicsView();
+            media_gScene = new QGraphicsScene();
+            media_gView->setScene(media_gScene);
+            rightLayout->addWidget(media_gView);
+            media_gView->setFixedSize(330, 200);
             media_progress = new QSlider(Qt::Horizontal, centralWidget());
             media_progress->setFixedSize(240, 20);
             connect(media_progress, SIGNAL(sliderReleased()), this, SLOT(updateMedia()));
@@ -40,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
         mainLayout->addLayout(rightLayout);
     centralWidget()->setLayout(mainLayout);
 
-    media_gScene.setBackgroundBrush(QBrush(QColor(0, 0, 0)));
+    media_gScene->setBackgroundBrush(QBrush(QColor(0, 0, 0)));
 
     enableButtons(false);
     findChild<QAction*>("actionPause")->setEnabled(false);
@@ -62,16 +65,22 @@ void MainWindow::on_actionLoad_media_triggered() {
     QStringList fileUrls = QFileDialog::getOpenFileNames(this, tr("Open media"),
             QStandardPaths::standardLocations(QStandardPaths::MusicLocation).at(0),
             tr("Audio files(*.mp3 *.flac *.wav)"));
-    QList<QMediaContent> media_files;
+    QList<QMediaContent> mediaList;
     for(QString fileUrl : fileUrls){
-        media_files.append(QUrl::fromLocalFile(fileUrl));
+        mediaList.append(QUrl::fromLocalFile(fileUrl));
     }
-    loaded_files->addMedia(media_files);
+    loaded_files->addMedia(mediaList);
 }
 
 void MainWindow::updateQueue(int start, int end){
     for(int i = start; i <= end; i++){
         media_list->addItem(loaded_files->media(i).canonicalUrl().fileName());
+    }
+    if(loaded_files->currentIndex() == -1) {
+        loaded_files->setCurrentIndex(0);
+        FMOD_System_CreateSound(fmod_system,
+                    loaded_files->currentMedia().canonicalUrl().toLocalFile().toStdString().c_str(),
+                    FMOD_DEFAULT, nullptr, &current_media);
     }
     if(media_list->count() > 0) emit hasMedia(true);
 }
@@ -91,32 +100,44 @@ void MainWindow::enableButtons(bool status){
 void MainWindow::on_actionPlay_triggered() {
     findChild<QAction*>("actionPause")->setEnabled(true);
     findChild<QAction*>("actionPlay")->setEnabled(false);
-    media_player->play();
+    int pauseStatus = 0;
+    if(current_channel != nullptr){
+        FMOD_Channel_GetPaused(current_channel, &pauseStatus);
+    }
+   if(!pauseStatus){
+        FMOD_System_PlaySound(fmod_system, current_media, nullptr, false, &current_channel);
+    } else
+        FMOD_Channel_SetPaused(current_channel, false);
 }
 
 void MainWindow::on_actionPause_triggered() {
     findChild<QAction*>("actionPause")->setEnabled(false);
     findChild<QAction*>("actionPlay")->setEnabled(true);
-    media_player->pause();
+    FMOD_Channel_SetPaused(current_channel, true);
 }
 
 void MainWindow::on_actionStop_triggered() {
-    media_player->stop();
+    FMOD_Channel_Stop(current_channel);
+    findChild<QAction*>("actionPlay")->setEnabled(true);
+    findChild<QAction*>("actionPause")->setEnabled(false);
 }
 
 void MainWindow::updateProgressTimer(){
-    media_progress->setMaximum(static_cast<int>(media_player->metaData("Duration").toInt()));
+    unsigned int media_length, position;
+    FMOD_Sound_GetLength(current_media, &media_length, FMOD_TIMEUNIT_MS);
+    media_progress->setMaximum(static_cast<int>(media_length));
     media_progress->setMinimum(0);
-    media_progress->setSliderPosition(static_cast<int>(media_player->position()));
+    FMOD_Channel_GetPosition(current_channel, &position, FMOD_TIMEUNIT_MS);
+    media_progress->setSliderPosition(static_cast<int>(position));
 
-    int maxSecs = static_cast<int>(media_player->metaData("Duration").toInt()) / 1000;
+    int maxSecs = static_cast<int>(media_length) / 1000;
     int maxMins = maxSecs / 60;
     maxSecs -= maxMins * 60;
     std::stringstream maxTimeText;
     maxTimeText << (maxMins<10?"0":"") << maxMins << ":" << (maxSecs<10?"0":"") << maxSecs;
     media_time->setText(QString::fromStdString(maxTimeText.str()));
 
-    int curSecs = static_cast<int>(media_player->position()) / 1000;
+    int curSecs = static_cast<int>(position) / 1000;
     int curMins = curSecs / 60;
     curSecs -= curMins * 60;
     std::stringstream minTimeText;
@@ -125,6 +146,11 @@ void MainWindow::updateProgressTimer(){
 }
 
 void MainWindow::updateMedia(){
-    media_player->setPosition(media_progress->value());
+    FMOD_Channel_SetPosition(current_channel, static_cast<unsigned int>(media_progress->value()),
+                             FMOD_TIMEUNIT_MS);
     timer_progress->start();
+}
+
+void MainWindow::setPixel(int x, int y){
+    media_gScene->addLine(x, 0, x, y, QPen(QColor(255, 0, 0)));
 }

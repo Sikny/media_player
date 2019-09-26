@@ -32,3 +32,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     icons.qrc
+
+unix|win32: LIBS += -L'D:/Libs/FMOD Studio API Windows/api/core/lib/x86/' -lfmod -lfmodl
+
+INCLUDEPATH += 'D:/Libs/FMOD Studio API Windows/api/core/inc'
+DEPENDPATH += 'D:/Libs/FMOD Studio API Windows/api/core/inc'
