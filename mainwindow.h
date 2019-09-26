@@ -50,6 +50,8 @@ private slots:
 
     void on_actionNext_triggered();
 
+    void on_actionPrevious_triggered();
+
 private:
     void setPixel(int x, int y);
 

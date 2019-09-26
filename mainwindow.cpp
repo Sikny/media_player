@@ -172,3 +172,17 @@ void MainWindow::on_actionNext_triggered() {
         FMOD_System_PlaySound(fmod_system, current_media, nullptr, paused, &current_channel);
     }
 }
+
+void MainWindow::on_actionPrevious_triggered() {
+    if(loaded_files->currentIndex() > 0){
+        loaded_files->previous();
+        int paused = 0;
+        FMOD_Channel_GetPaused(current_channel, &paused);
+        FMOD_Channel_Stop(current_channel);
+        FMOD_Sound_Release(current_media);
+        FMOD_System_CreateSound(fmod_system,
+                    loaded_files->currentMedia().canonicalUrl().toLocalFile().toStdString().c_str(),
+                    FMOD_DEFAULT, nullptr, &current_media);
+        FMOD_System_PlaySound(fmod_system, current_media, nullptr, paused, &current_channel);
+    }
+}
