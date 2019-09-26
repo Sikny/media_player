@@ -144,6 +144,8 @@ void MainWindow::updateProgressTimer(){
         std::stringstream minTimeText;
         minTimeText << (curMins<10?"0":"") << curMins << ":" << (curSecs<10?"0":"") << curSecs;
         media_cur_time->setText(QString::fromStdString(minTimeText.str()));
+
+        if(position == media_length) on_actionNext_triggered();
     }
 }
 
