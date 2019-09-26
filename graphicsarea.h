@@ -23,7 +23,7 @@ public slots:
     void setPen(const QPen &pen);
     void setBrush(const QBrush &brush);
     void setAntialiased(bool antialiased);
-    void setValues(float* data, unsigned int length);
+    void setValues(float* data, int length);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

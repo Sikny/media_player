@@ -176,7 +176,7 @@ void MainWindow::updateRenderArea(){
     for(int i = 0; i < fft->length; i++){
         data[i] = fft->spectrum[0][i];
     }
-    media_gView->setValues(data, static_cast<unsigned int>(fft->length));
+    media_gView->setValues(data, fft->length);
 
     // deleting temp pointers
     delete [] data;

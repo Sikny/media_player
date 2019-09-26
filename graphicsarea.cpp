@@ -1,7 +1,7 @@
 #include "graphicsarea.h"
 
 GraphicsArea::GraphicsArea(QWidget* parent) : QWidget(parent){
-    shape = Line;
+    shape = Points;
     antialiased = true;
     values = nullptr;
 
@@ -42,8 +42,8 @@ void GraphicsArea::setAntialiased(bool antialiased){
     update();
 }
 
-void GraphicsArea::setValues(float* data, unsigned int length){
-    dataLength = static_cast<int>(length);
+void GraphicsArea::setValues(float* data, int length){
+    dataLength = length;
     float* tmp = new float[width()];
     delete values;
     values = tmp;
@@ -64,16 +64,25 @@ void GraphicsArea::paintEvent(QPaintEvent *event){
     painter.save();
 
     QVector<QLine> lines;
+    QPoint* points;
+
     switch (shape) {
         case Line:
             if(values != nullptr){
                 for(int i = 0; i < width(); i++){
                     lines.append(QLine(i, height()-values[i]*20*height(), i, height()));
                 }
-                painter.drawLines(lines);}
+                painter.drawLines(lines);
+            }
             break;
         case Points:
-
+            if(values != nullptr){
+                points = new QPoint[width()];
+                for(int i = 0; i < width(); i++){
+                    points[i] = QPoint(i, height()-values[i]*20*height());
+                }
+                painter.drawPoints(points, width());
+            }
             //painter.drawPoints(points, 4);
             break;
         case Text:
