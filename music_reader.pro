@@ -17,10 +17,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    openglarea.cpp
 
 HEADERS += \
-    mainwindow.h
+    mainwindow.h \
+    openglarea.h
 
 FORMS += \
     mainwindow.ui

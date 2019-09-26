@@ -22,9 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
         mainLayout->addWidget(grpMediaList);
         QVBoxLayout *rightLayout = new QVBoxLayout();
             rightLayout->addSpacing(25);
-            media_gView = new QGraphicsView();
-            media_gScene = new QGraphicsScene();
-            media_gView->setScene(media_gScene);
+            media_gView = new OpenGLArea(this);
             rightLayout->addWidget(media_gView);
             media_gView->setFixedSize(330, 200);
             media_progress = new QSlider(Qt::Horizontal, centralWidget());
@@ -43,13 +41,15 @@ MainWindow::MainWindow(QWidget *parent)
         mainLayout->addLayout(rightLayout);
     centralWidget()->setLayout(mainLayout);
 
-    media_gScene->setBackgroundBrush(QBrush(QColor(0, 0, 0)));
-
     enableButtons(false);
     findChild<QAction*>("actionPause")->setEnabled(false);
 
     connect(loaded_files, SIGNAL(mediaInserted(int, int)), this, SLOT(updateQueue(int, int)));
     connect(this, SIGNAL(hasMedia(bool)), this, SLOT(enableButtons(bool)));
+}
+
+void MainWindow::loadMedia(QString arg){
+    loaded_files->addMedia(QUrl::fromLocalFile(arg));
 }
 
 MainWindow::~MainWindow() {
@@ -158,7 +158,7 @@ void MainWindow::updateMedia(){
 }
 
 void MainWindow::setPixel(int x, int y){
-    media_gScene->addLine(x, 0, x, y, QPen(QColor(255, 0, 0)));
+    //media_gScene->addLine(x, 0, x, y, QPen(QColor(255, 0, 0)));
 }
 
 void MainWindow::on_actionNext_triggered() {

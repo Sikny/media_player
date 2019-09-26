@@ -9,15 +9,13 @@
 #include <QBoxLayout>
 #include <QListWidget>
 #include <QGroupBox>
-#include <QGraphicsView>
-#include <QGraphicsScene>
 #include <QMediaPlaylist>
 #include <QMediaContent>
-#include <QToolBar>
 #include <QDebug>
 #include <QLabel>
 #include <QTimer>
 #include <fmod.h>
+#include "openglarea.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,6 +27,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
+    void loadMedia(QString arg);
     ~MainWindow();
 
 signals:
@@ -62,12 +61,13 @@ private:
     FMOD_CHANNEL* current_channel;
     FMOD_SOUND* current_media;
     QMediaPlaylist* loaded_files;
-    QGraphicsScene * media_gScene;
     QTimer* timer_progress;
+
+    // OpenGL
+    OpenGLArea * media_gView;
 
     // UI
     QListWidget * media_list;
-    QGraphicsView * media_gView;
     QSlider * media_progress;
     QLabel *media_time, *media_cur_time;
 };
