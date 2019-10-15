@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     timer_progress = new QTimer(this);
     connect(timer_progress, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
-    timer_progress->start(100);
+    timer_progress->start(1000/60); // 60 fps
 
     QHBoxLayout *mainLayout = new QHBoxLayout();
         QGroupBox * grpMediaList = new QGroupBox(tr("Current queue"), centralWidget());
@@ -169,7 +169,7 @@ void MainWindow::updateMedia(){
 void MainWindow::updateRenderArea(){
     // getting data
     FMOD_DSP_PARAMETER_FFT *fft = nullptr;
-    FMOD_DSP_GetParameterData(dsp, FMOD_DSP_FFT_SPECTRUMDATA, (void**)&fft, nullptr, nullptr ,0);
+    FMOD_DSP_GetParameterData(dsp, FMOD_DSP_FFT_SPECTRUMDATA, reinterpret_cast<void**>(&fft), nullptr, nullptr ,0);
 
     // passing data to renderer
     float* data = new float[fft->length];

@@ -25,6 +25,10 @@ void GraphicsArea::buildContextMenu(){
     QVariant pointsV = qVariantFromValue(Points);
     connect(actionPoints, SIGNAL(triggered()), this, SLOT(setShape()));
     actionPoints->setData(pointsV);
+    actionPolyline = new QAction(tr("Polyline"), this);
+    QVariant polylineV = qVariantFromValue(Polyline);
+    actionPolyline->setData(polylineV);
+    connect(actionPolyline, SIGNAL(triggered()), this, SLOT(setShape()));
 }
 
 QSize GraphicsArea::sizeHint() const {
@@ -100,13 +104,17 @@ void GraphicsArea::paintEvent(QPaintEvent *event){
                 painter.drawPoints(points, width());
                 delete [] points;
             }
-            //painter.drawPoints(points, 4);
             break;
-        case Text:
-            //painter.drawText(rect, Qt::AlignCenter, tr("Qt by\nThe Qt Company"));
-            break;
-        case Pixmap:
-            painter.drawPixmap(10, 10, pixmap);
+        case Polyline:
+            if(values != nullptr){
+                points = new QPoint[width()];
+                for(int i = 0; i < width(); i++){
+                    points[i] = QPoint(i, static_cast<int>(height()-values[i]*20*height()));
+                }
+                painter.drawPolyline(points, width());
+                delete [] points;
+            }
+
     }
     painter.restore();
     painter.setRenderHint(QPainter::Antialiasing, false);
@@ -117,5 +125,6 @@ void GraphicsArea::contextMenuEvent(QContextMenuEvent *event){
     QMenu menu;
     menu.addAction(actionLine);
     menu.addAction(actionPoints);
+    menu.addAction(actionPolyline);
     menu.exec(event->globalPos());
 }

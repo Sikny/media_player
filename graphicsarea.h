@@ -8,7 +8,7 @@
 #include <QMenu>
 #include <QDebug>
 
-enum Shape { Line, Points, Text, Pixmap };
+enum Shape { Line, Points, Polyline };
 
 class GraphicsArea : public QWidget {
     Q_OBJECT
@@ -36,7 +36,7 @@ private:
     Shape shape;
     QPen pen;
     QBrush brush;
-    QAction *actionLine, *actionPoints;
+    QAction *actionLine, *actionPoints, *actionPolyline;
     bool antialiased;
     QPixmap pixmap;
 
