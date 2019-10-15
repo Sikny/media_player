@@ -16,6 +16,10 @@ GraphicsArea::GraphicsArea(QWidget* parent) : QWidget(parent){
     buildContextMenu();
 }
 
+/**
+ * @brief GraphicsArea::buildContextMenu
+ * Builds right click menu actions
+ */
 void GraphicsArea::buildContextMenu(){
     actionLine = new QAction(tr("Lines"), this);
     QVariant lineV = qVariantFromValue(Line);
@@ -39,6 +43,10 @@ QSize GraphicsArea::minimumSizeHint() const{
     return QSize(330, 200);
 }
 
+/**
+ * @brief GraphicsArea::setShape
+ * Changes shape for display type
+ */
 void GraphicsArea::setShape(){
     QAction* act = qobject_cast<QAction*>(sender());
     this->shape = static_cast<Shape>(act->data().value<Shape>());
@@ -61,6 +69,12 @@ void GraphicsArea::setAntialiased(bool antialiased){
     update();
 }
 
+/**
+ * @brief GraphicsArea::setValues
+ * Data retrieving for current frame
+ * @param data
+ * @param length
+ */
 void GraphicsArea::setValues(float* data, int length){
     dataLength = length;
     float* tmp = new float[width()];
@@ -75,6 +89,11 @@ void GraphicsArea::setValues(float* data, int length){
     update();
 }
 
+/**
+ * @brief GraphicsArea::paintEvent
+ * Overrides paintEvent for drawing on widget
+ * @param event
+ */
 void GraphicsArea::paintEvent(QPaintEvent *event){
     QPainter painter(this);
     painter.setPen(pen);
@@ -121,6 +140,11 @@ void GraphicsArea::paintEvent(QPaintEvent *event){
     painter.setBrush(Qt::NoBrush);
 }
 
+/**
+ * @brief GraphicsArea::contextMenuEvent
+ * Right click menu override
+ * @param event
+ */
 void GraphicsArea::contextMenuEvent(QContextMenuEvent *event){
     QMenu menu;
     menu.addAction(actionLine);

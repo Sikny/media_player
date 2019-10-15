@@ -59,8 +59,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 /**
  * @brief MainWindow::loadMedia
- * Adds a media to current queue
- * @param arg
+ * Adds a media to current queue, or loads a playlist
+ * @param arg : file (media or playlist)
  */
 void MainWindow::loadMedia(QString arg){
     loaded_files->addMedia(QUrl::fromLocalFile(arg));
@@ -72,11 +72,18 @@ MainWindow::~MainWindow() {
     FMOD_System_Release(fmod_system);
 }
 
-
+/**
+ * @brief MainWindow::on_actionAbout_triggered
+ * about action
+ */
 void MainWindow::on_actionAbout_triggered() {
     QMessageBox::information(this, tr("About"), tr("Version 1.0.0\nAuthor: Sikny"));
 }
 
+/**
+ * @brief MainWindow::on_actionLoad_media_triggered
+ * Load media action
+ */
 void MainWindow::on_actionLoad_media_triggered() {
     QStringList fileUrls = QFileDialog::getOpenFileNames(this, tr("Open media"),
             QStandardPaths::standardLocations(QStandardPaths::MusicLocation).at(0),
@@ -88,6 +95,12 @@ void MainWindow::on_actionLoad_media_triggered() {
     loaded_files->addMedia(mediaList);
 }
 
+/**
+ * @brief MainWindow::updateQueue
+ * updates current queue when loading new media
+ * @param start
+ * @param end
+ */
 void MainWindow::updateQueue(int start, int end){
     for(int i = start; i <= end; i++){
         media_list->addItem(loaded_files->media(i).canonicalUrl().fileName());
@@ -101,6 +114,11 @@ void MainWindow::updateQueue(int start, int end){
     if(media_list->count() > 0) emit hasMedia(true);
 }
 
+/**
+ * @brief MainWindow::enableButtons
+ * Enable play buttons when at least one media is loaded
+ * @param status
+ */
 void MainWindow::enableButtons(bool status){
     int paused;
     FMOD_Channel_GetPaused(current_channel, &paused);
@@ -116,6 +134,10 @@ void MainWindow::enableButtons(bool status){
     }
 }
 
+/**
+ * @brief MainWindow::on_actionPlay_triggered
+ * Play action
+ */
 void MainWindow::on_actionPlay_triggered() {
     findChild<QAction*>("actionPause")->setEnabled(true);
     findChild<QAction*>("actionPlay")->setEnabled(false);
@@ -129,18 +151,30 @@ void MainWindow::on_actionPlay_triggered() {
         FMOD_Channel_SetPaused(current_channel, false);
 }
 
+/**
+ * @brief MainWindow::on_actionPause_triggered
+ * Pause action
+ */
 void MainWindow::on_actionPause_triggered() {
     findChild<QAction*>("actionPause")->setEnabled(false);
     findChild<QAction*>("actionPlay")->setEnabled(true);
     FMOD_Channel_SetPaused(current_channel, true);
 }
 
+/**
+ * @brief MainWindow::on_actionStop_triggered
+ * Stop action
+ */
 void MainWindow::on_actionStop_triggered() {
     FMOD_Channel_Stop(current_channel);
     findChild<QAction*>("actionPlay")->setEnabled(true);
     findChild<QAction*>("actionPause")->setEnabled(false);
 }
 
+/**
+ * @brief MainWindow::updateProgressTimer
+ * timer slot : updates labels and slider for media progress
+ */
 void MainWindow::updateProgressTimer(){
     if(current_channel != nullptr){
         int cur_index = loaded_files->currentIndex();
@@ -150,7 +184,6 @@ void MainWindow::updateProgressTimer(){
         int mediaCount = media_list->count();
         for(int i = cur_index+1; i < mediaCount; i++)
             media_list->item(i)->setForeground(QColor(Qt::black));
-
 
         // update times and position for slider & labels
         unsigned int media_length, position;
@@ -181,6 +214,10 @@ void MainWindow::updateProgressTimer(){
     }
 }
 
+/**
+ * @brief MainWindow::updateMedia
+ * Slot for progress slider : Sets media position
+ */
 void MainWindow::updateMedia(){
     if(current_channel != nullptr){
         FMOD_Channel_SetPosition(current_channel, static_cast<unsigned int>(media_progress->value()),
@@ -189,6 +226,10 @@ void MainWindow::updateMedia(){
     }
 }
 
+/**
+ * @brief MainWindow::updateRenderArea
+ * updates render area for current frame
+ */
 void MainWindow::updateRenderArea(){
     // getting data
     FMOD_DSP_PARAMETER_FFT *fft = nullptr;
@@ -208,6 +249,10 @@ void MainWindow::updateRenderArea(){
     fft = nullptr;
 }
 
+/**
+ * @brief MainWindow::on_actionNext_triggered
+ * Next action
+ */
 void MainWindow::on_actionNext_triggered() {
     if(loaded_files->currentIndex() < loaded_files->mediaCount()-1){
         loaded_files->next();
@@ -222,6 +267,10 @@ void MainWindow::on_actionNext_triggered() {
     }
 }
 
+/**
+ * @brief MainWindow::on_actionPrevious_triggered
+ * Previous action
+ */
 void MainWindow::on_actionPrevious_triggered() {
     if(loaded_files->currentIndex() > 0){
         loaded_files->previous();
