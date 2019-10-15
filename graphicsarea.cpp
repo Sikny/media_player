@@ -1,7 +1,7 @@
 #include "graphicsarea.h"
 
 GraphicsArea::GraphicsArea(QWidget* parent) : QWidget(parent){
-    shape = Points;
+    shape = Line;
     antialiased = true;
     values = nullptr;
 
@@ -12,6 +12,19 @@ GraphicsArea::GraphicsArea(QWidget* parent) : QWidget(parent){
     pal.setColor(QPalette::Background, Qt::black);
     setPalette(pal);
     setAutoFillBackground(true);
+
+    buildContextMenu();
+}
+
+void GraphicsArea::buildContextMenu(){
+    actionLine = new QAction(tr("Lines"), this);
+    QVariant lineV = qVariantFromValue(Line);
+    actionLine->setData(lineV);
+    connect(actionLine, SIGNAL(triggered()), this, SLOT(setShape()));
+    actionPoints = new QAction(tr("Points"), this);
+    QVariant pointsV = qVariantFromValue(Points);
+    connect(actionPoints, SIGNAL(triggered()), this, SLOT(setShape()));
+    actionPoints->setData(pointsV);
 }
 
 QSize GraphicsArea::sizeHint() const {
@@ -22,8 +35,10 @@ QSize GraphicsArea::minimumSizeHint() const{
     return QSize(330, 200);
 }
 
-void GraphicsArea::setShape(Shape shape){
-    this->shape = shape;
+void GraphicsArea::setShape(){
+    QAction* act = qobject_cast<QAction*>(sender());
+    this->shape = static_cast<Shape>(act->data().value<Shape>());
+    qDebug() << this->shape;
     update();
 }
 
@@ -70,7 +85,8 @@ void GraphicsArea::paintEvent(QPaintEvent *event){
         case Line:
             if(values != nullptr){
                 for(int i = 0; i < width(); i++){
-                    lines.append(QLine(i, height()-values[i]*20*height(), i, height()));
+                    lines.append(QLine(i, static_cast<int>(height()-values[i]*20*height()),
+                            i, height()));
                 }
                 painter.drawLines(lines);
             }
@@ -79,9 +95,10 @@ void GraphicsArea::paintEvent(QPaintEvent *event){
             if(values != nullptr){
                 points = new QPoint[width()];
                 for(int i = 0; i < width(); i++){
-                    points[i] = QPoint(i, height()-values[i]*20*height());
+                    points[i] = QPoint(i, static_cast<int>(height()-values[i]*20*height()));
                 }
                 painter.drawPoints(points, width());
+                delete [] points;
             }
             //painter.drawPoints(points, 4);
             break;
@@ -94,4 +111,11 @@ void GraphicsArea::paintEvent(QPaintEvent *event){
     painter.restore();
     painter.setRenderHint(QPainter::Antialiasing, false);
     painter.setBrush(Qt::NoBrush);
+}
+
+void GraphicsArea::contextMenuEvent(QContextMenuEvent *event){
+    QMenu menu;
+    menu.addAction(actionLine);
+    menu.addAction(actionPoints);
+    menu.exec(event->globalPos());
 }

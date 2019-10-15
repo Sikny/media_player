@@ -1,17 +1,18 @@
 #ifndef GRAPHICSAREA_H
 #define GRAPHICSAREA_H
 
-#include <sstream>
 #include <QWidget>
 #include <QPen>
 #include <QPainter>
 #include <QPaintEvent>
+#include <QMenu>
 #include <QDebug>
+
+enum Shape { Line, Points, Text, Pixmap };
 
 class GraphicsArea : public QWidget {
     Q_OBJECT
 public:
-    enum Shape { Line, Points, Text, Pixmap };
 
     GraphicsArea(QWidget *parent = nullptr);
 
@@ -19,7 +20,7 @@ public:
     QSize sizeHint() const override;
 
 public slots:
-    void setShape(Shape shape);
+    void setShape();
     void setPen(const QPen &pen);
     void setBrush(const QBrush &brush);
     void setAntialiased(bool antialiased);
@@ -27,16 +28,22 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
+    void buildContextMenu();
+
     Shape shape;
     QPen pen;
     QBrush brush;
+    QAction *actionLine, *actionPoints;
     bool antialiased;
     QPixmap pixmap;
 
     float* values;
     int dataLength;
 };
+
+Q_DECLARE_METATYPE(Shape);
 
 #endif // GRAPHICSAREA_H

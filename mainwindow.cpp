@@ -181,6 +181,8 @@ void MainWindow::updateRenderArea(){
     // deleting temp pointers
     delete [] data;
     data = nullptr;
+    delete fft;
+    fft = nullptr;
 }
 
 void MainWindow::on_actionNext_triggered() {
