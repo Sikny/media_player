@@ -4,6 +4,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), current_channel(nullptr) {
     ui->setupUi(this);
+    // init FMOD
     FMOD_System_Create(&fmod_system);
     FMOD_System_Init(fmod_system, 2, FMOD_INIT_NORMAL, nullptr);
 
@@ -20,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(timer_progress, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
     timer_progress->start(1000/60); // 60 fps
 
+    // build central widget
     QHBoxLayout *mainLayout = new QHBoxLayout();
         QGroupBox * grpMediaList = new QGroupBox(tr("Current queue"), centralWidget());
             QVBoxLayout *boxLayout = new QVBoxLayout(grpMediaList);
@@ -55,12 +57,19 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, SIGNAL(hasMedia(bool)), this, SLOT(enableButtons(bool)));
 }
 
+/**
+ * @brief MainWindow::loadMedia
+ * Adds a media to current queue
+ * @param arg
+ */
 void MainWindow::loadMedia(QString arg){
     loaded_files->addMedia(QUrl::fromLocalFile(arg));
 }
 
 MainWindow::~MainWindow() {
     delete ui;
+    FMOD_System_Close(fmod_system);
+    FMOD_System_Release(fmod_system);
 }
 
 
@@ -93,6 +102,9 @@ void MainWindow::updateQueue(int start, int end){
 }
 
 void MainWindow::enableButtons(bool status){
+    int paused;
+    FMOD_Channel_GetPaused(current_channel, &paused);
+    if(!paused) return;
     QList<QAction*> mediaActions = {
         findChild<QAction*>("actionPlay"),
         findChild<QAction*>("actionStop"),
@@ -131,6 +143,16 @@ void MainWindow::on_actionStop_triggered() {
 
 void MainWindow::updateProgressTimer(){
     if(current_channel != nullptr){
+        int cur_index = loaded_files->currentIndex();
+        for(int i = 0; i < cur_index; i++)
+            media_list->item(i)->setForeground(QColor(Qt::black));
+        media_list->item(cur_index)->setForeground(QColor(0, 0, 255));
+        int mediaCount = media_list->count();
+        for(int i = cur_index+1; i < mediaCount; i++)
+            media_list->item(i)->setForeground(QColor(Qt::black));
+
+
+        // update times and position for slider & labels
         unsigned int media_length, position;
         FMOD_Sound_GetLength(current_media, &media_length, FMOD_TIMEUNIT_MS);
         media_progress->setMaximum(static_cast<int>(media_length));
@@ -154,6 +176,7 @@ void MainWindow::updateProgressTimer(){
 
         updateRenderArea();
 
+        // if end of media reached, play next
         if(position == media_length) on_actionNext_triggered();
     }
 }
