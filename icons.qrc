@@ -6,5 +6,7 @@
         <file>images/media-seek-forward-32.png</file>
         <file>images/media-stop-32.png</file>
         <file>images/open.png</file>
+        <file>images/loop.png</file>
+        <file>images/save.png</file>
     </qresource>
 </RCC>
