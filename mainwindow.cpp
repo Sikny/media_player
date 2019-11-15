@@ -4,6 +4,15 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), current_channel(nullptr) {
     ui->setupUi(this);
+
+    findChild<QAction*>("actionPlay")->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+    findChild<QAction*>("actionPause")->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+    findChild<QAction*>("actionStop")->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
+    findChild<QAction*>("actionNext")->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
+    findChild<QAction*>("actionPrevious")->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
+
+    findChild<QAction*>("actionOpen_playlist")->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
+
     // init FMOD
     FMOD_System_Create(&fmod_system);
     FMOD_System_Init(fmod_system, 2, FMOD_INIT_NORMAL, nullptr);

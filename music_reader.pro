@@ -18,11 +18,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     graphicsarea.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    playlist.cpp
 
 HEADERS += \
     graphicsarea.h \
-    mainwindow.h
+    mainwindow.h \
+    playlist.h
 
 FORMS += \
     mainwindow.ui
@@ -33,7 +35,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    icons.qrc
+    resources.qrc
 
 unix|win32: LIBS += -L'D:/Libs/FMOD Studio API Windows/api/core/lib/x86/' -lfmod -lfmodl
 
