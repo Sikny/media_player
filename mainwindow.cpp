@@ -59,6 +59,11 @@ MainWindow::MainWindow(QWidget *parent)
         mainLayout->addLayout(rightLayout);
     centralWidget()->setLayout(mainLayout);
 
+    // build toolbars
+    QToolBar* queueToolBar = findChild<QToolBar*>("queueToolBar");
+        loopCheckbox = new QCheckBox(tr("Loop"), this);
+    queueToolBar->addWidget(loopCheckbox);
+
     enableButtons(false);
     findChild<QAction*>("actionPause")->setEnabled(false);
 
@@ -263,8 +268,15 @@ void MainWindow::updateRenderArea(){
  * Next action
  */
 void MainWindow::on_actionNext_triggered() {
+    bool doPlayNext = false;
     if(loaded_files->currentIndex() < loaded_files->mediaCount()-1){
         loaded_files->next();
+        doPlayNext = true;
+    } else if(loopCheckbox->isChecked()){
+        loaded_files->setCurrentIndex(0);
+        doPlayNext = true;
+    }
+    if(doPlayNext){
         int paused = 0;
         FMOD_Channel_GetPaused(current_channel, &paused);
         FMOD_Channel_Stop(current_channel);

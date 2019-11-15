@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QLabel>
 #include <QTimer>
+#include <QCheckBox>
 #include <fmod.h>
 #include "graphicsarea.h"
 
@@ -70,5 +71,6 @@ private:
     QListWidget * media_list;
     QSlider * media_progress;
     QLabel *media_time, *media_cur_time;
+    QCheckBox *loopCheckbox;
 };
 #endif // MAINWINDOW_H
