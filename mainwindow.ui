@@ -70,7 +70,7 @@
    <addaction name="actionStop"/>
    <addaction name="actionNext"/>
   </widget>
-  <widget class="QToolBar" name="volumeToolbar">
+  <widget class="QToolBar" name="volumeToolBar">
    <property name="windowTitle">
     <string>Volume</string>
    </property>

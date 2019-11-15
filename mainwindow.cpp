@@ -63,6 +63,14 @@ MainWindow::MainWindow(QWidget *parent)
     QToolBar* queueToolBar = findChild<QToolBar*>("queueToolBar");
         loopCheckbox = new QCheckBox(tr("Loop"), this);
     queueToolBar->addWidget(loopCheckbox);
+    QToolBar* volumeToolBar = findChild<QToolBar*>("volumeToolBar");
+        channel_volume = new QSlider(Qt::Horizontal, this);
+        channel_volume->setMaximum(100);
+        float volume;
+        FMOD_ChannelGroup_GetVolume(master_group, &volume);
+        channel_volume->setValue(static_cast<int>(volume*100));
+        connect(channel_volume, SIGNAL(valueChanged(int)), this, SLOT(onVolumeValueChanged(int)));
+    volumeToolBar->addWidget(channel_volume);
 
     enableButtons(false);
     findChild<QAction*>("actionPause")->setEnabled(false);
@@ -304,4 +312,8 @@ void MainWindow::on_actionPrevious_triggered() {
                     FMOD_DEFAULT, nullptr, &current_media);
         FMOD_System_PlaySound(fmod_system, current_media, nullptr, paused, &current_channel);
     }
+}
+
+void MainWindow::onVolumeValueChanged(int value){
+    FMOD_ChannelGroup_SetVolume(master_group, value/100.0f);
 }
