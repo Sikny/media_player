@@ -4,6 +4,15 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), current_channel(nullptr) {
     ui->setupUi(this);
+
+    findChild<QAction*>("actionPlay")->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+    findChild<QAction*>("actionPause")->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+    findChild<QAction*>("actionStop")->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
+    findChild<QAction*>("actionNext")->setIcon(style()->standardIcon(QStyle::SP_MediaSkipForward));
+    findChild<QAction*>("actionPrevious")->setIcon(style()->standardIcon(QStyle::SP_MediaSkipBackward));
+
+    findChild<QAction*>("actionOpen_playlist")->setIcon(style()->standardIcon(QStyle::SP_DirOpenIcon));
+
     // init FMOD
     FMOD_System_Create(&fmod_system);
     FMOD_System_Init(fmod_system, 2, FMOD_INIT_NORMAL, nullptr);
@@ -49,6 +58,19 @@ MainWindow::MainWindow(QWidget *parent)
             rightLayout->addLayout(progressLayout);
         mainLayout->addLayout(rightLayout);
     centralWidget()->setLayout(mainLayout);
+
+    // build toolbars
+    QToolBar* queueToolBar = findChild<QToolBar*>("queueToolBar");
+        loopCheckbox = new QCheckBox(tr("Loop"), this);
+    queueToolBar->addWidget(loopCheckbox);
+    QToolBar* volumeToolBar = findChild<QToolBar*>("volumeToolBar");
+        channel_volume = new QSlider(Qt::Horizontal, this);
+        channel_volume->setMaximum(100);
+        float volume;
+        FMOD_ChannelGroup_GetVolume(master_group, &volume);
+        channel_volume->setValue(static_cast<int>(volume*100));
+        connect(channel_volume, SIGNAL(valueChanged(int)), this, SLOT(onVolumeValueChanged(int)));
+    volumeToolBar->addWidget(channel_volume);
 
     enableButtons(false);
     findChild<QAction*>("actionPause")->setEnabled(false);
@@ -254,8 +276,15 @@ void MainWindow::updateRenderArea(){
  * Next action
  */
 void MainWindow::on_actionNext_triggered() {
+    bool doPlayNext = false;
     if(loaded_files->currentIndex() < loaded_files->mediaCount()-1){
         loaded_files->next();
+        doPlayNext = true;
+    } else if(loopCheckbox->isChecked()){
+        loaded_files->setCurrentIndex(0);
+        doPlayNext = true;
+    }
+    if(doPlayNext){
         int paused = 0;
         FMOD_Channel_GetPaused(current_channel, &paused);
         FMOD_Channel_Stop(current_channel);
@@ -283,4 +312,8 @@ void MainWindow::on_actionPrevious_triggered() {
                     FMOD_DEFAULT, nullptr, &current_media);
         FMOD_System_PlaySound(fmod_system, current_media, nullptr, paused, &current_channel);
     }
+}
+
+void MainWindow::onVolumeValueChanged(int value){
+    FMOD_ChannelGroup_SetVolume(master_group, value/100.0f);
 }

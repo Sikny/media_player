@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QLabel>
 #include <QTimer>
+#include <QCheckBox>
 #include <fmod.h>
 #include "graphicsarea.h"
 
@@ -51,6 +52,8 @@ private slots:
     void on_actionNext_triggered();
     void on_actionPrevious_triggered();
 
+    void onVolumeValueChanged(int);
+
 private:
     Ui::MainWindow *ui;
 
@@ -68,7 +71,8 @@ private:
 
     // UI
     QListWidget * media_list;
-    QSlider * media_progress;
+    QSlider * media_progress, * channel_volume;
     QLabel *media_time, *media_cur_time;
+    QCheckBox *loopCheckbox;
 };
 #endif // MAINWINDOW_H

@@ -5,8 +5,8 @@ GraphicsArea::GraphicsArea(QWidget* parent) : QWidget(parent){
     antialiased = true;
     values = nullptr;
 
-    pen.setColor(QColor(0, 255, 0));
-    brush.setColor(QColor(0, 255, 0));
+    pen.setColor(QColor(255, 0, 0));
+    brush.setColor(QColor(255, 0, 0));
 
     QPalette pal = palette();
     pal.setColor(QPalette::Background, Qt::black);
@@ -14,6 +14,7 @@ GraphicsArea::GraphicsArea(QWidget* parent) : QWidget(parent){
     setAutoFillBackground(true);
 
     buildContextMenu();
+    actionLine->setChecked(true);
 }
 
 /**
@@ -24,14 +25,17 @@ void GraphicsArea::buildContextMenu(){
     actionLine = new QAction(tr("Lines"), this);
     QVariant lineV = qVariantFromValue(Line);
     actionLine->setData(lineV);
+    actionLine->setCheckable(true);
     connect(actionLine, SIGNAL(triggered()), this, SLOT(setShape()));
     actionPoints = new QAction(tr("Points"), this);
     QVariant pointsV = qVariantFromValue(Points);
-    connect(actionPoints, SIGNAL(triggered()), this, SLOT(setShape()));
     actionPoints->setData(pointsV);
+    actionPoints->setCheckable(true);
+    connect(actionPoints, SIGNAL(triggered()), this, SLOT(setShape()));
     actionPolyline = new QAction(tr("Polyline"), this);
     QVariant polylineV = qVariantFromValue(Polyline);
     actionPolyline->setData(polylineV);
+    actionPolyline->setCheckable(true);
     connect(actionPolyline, SIGNAL(triggered()), this, SLOT(setShape()));
 }
 
@@ -50,8 +54,25 @@ QSize GraphicsArea::minimumSizeHint() const{
 void GraphicsArea::setShape(){
     QAction* act = qobject_cast<QAction*>(sender());
     this->shape = static_cast<Shape>(act->data().value<Shape>());
-    qDebug() << this->shape;
+    resetSelectedShape();
+    switch(this->shape){
+    case Line:
+        actionLine->setChecked(true);
+        break;
+    case Points:
+        actionPoints->setChecked(true);
+        break;
+    case Polyline:
+        actionPolyline->setChecked(true);
+    }
+
     update();
+}
+
+void GraphicsArea::resetSelectedShape(){
+    actionLine->setChecked(false);
+    actionPoints->setChecked(false);
+    actionPolyline->setChecked(false);
 }
 
 void GraphicsArea::setPen(const QPen &pen){
@@ -147,8 +168,10 @@ void GraphicsArea::paintEvent(QPaintEvent *event){
  */
 void GraphicsArea::contextMenuEvent(QContextMenuEvent *event){
     QMenu menu;
-    menu.addAction(actionLine);
-    menu.addAction(actionPoints);
-    menu.addAction(actionPolyline);
+        QMenu menuShape(tr("Shape"));
+        menuShape.addAction(actionLine);
+        menuShape.addAction(actionPoints);
+        menuShape.addAction(actionPolyline);
+    menu.addMenu(&menuShape);
     menu.exec(event->globalPos());
 }

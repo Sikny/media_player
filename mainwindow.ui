@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Music player</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>710</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMedia">
@@ -70,9 +70,9 @@
    <addaction name="actionStop"/>
    <addaction name="actionNext"/>
   </widget>
-  <widget class="QToolBar" name="queueToolbar">
+  <widget class="QToolBar" name="volumeToolBar">
    <property name="windowTitle">
-    <string>Queue</string>
+    <string>Volume</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -80,14 +80,10 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionOpen_playlist"/>
-   <addaction name="actionSave_playlist"/>
-   <addaction name="separator"/>
-   <addaction name="actionactionLoop"/>
   </widget>
-  <widget class="QToolBar" name="volumeToolbar">
+  <widget class="QToolBar" name="queueToolBar">
    <property name="windowTitle">
-    <string>Volume</string>
+    <string>Queue</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -102,31 +98,19 @@
    </property>
   </action>
   <action name="actionPlay">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/images/media-play-32.png</normaloff>:/images/media-play-32.png</iconset>
-   </property>
    <property name="text">
     <string>Play</string>
    </property>
    <property name="shortcut">
-    <string>Media Play</string>
+    <string>Space</string>
    </property>
   </action>
   <action name="actionStop">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/images/media-stop-32.png</normaloff>:/images/media-stop-32.png</iconset>
-   </property>
    <property name="text">
     <string>Stop</string>
    </property>
   </action>
   <action name="actionNext">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/images/media-seek-forward-32.png</normaloff>:/images/media-seek-forward-32.png</iconset>
-   </property>
    <property name="text">
     <string>Next</string>
    </property>
@@ -135,46 +119,26 @@
    </property>
   </action>
   <action name="actionPrevious">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/images/media-seek-backward-32.png</normaloff>:/images/media-seek-backward-32.png</iconset>
-   </property>
    <property name="text">
     <string>Previous</string>
    </property>
   </action>
   <action name="actionOpen_playlist">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
-   </property>
    <property name="text">
     <string>Open playlist...</string>
    </property>
   </action>
   <action name="actionSave_playlist">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
-   </property>
    <property name="text">
     <string>Save playlist</string>
    </property>
   </action>
   <action name="actionSave_playlist_as">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
-   </property>
    <property name="text">
     <string>Save playlist as...</string>
    </property>
   </action>
   <action name="actionPause">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/images/media-pause-32.png</normaloff>:/images/media-pause-32.png</iconset>
-   </property>
    <property name="text">
     <string>Pause</string>
    </property>
@@ -186,10 +150,6 @@
    </property>
   </action>
   <action name="actionLoad_media">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
-   </property>
    <property name="text">
     <string>&amp;Open...</string>
    </property>
@@ -197,21 +157,7 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionactionLoop">
-   <property name="icon">
-    <iconset resource="icons.qrc">
-     <normaloff>:/images/loop.png</normaloff>:/images/loop.png</iconset>
-   </property>
-   <property name="text">
-    <string>actionLoop</string>
-   </property>
-   <property name="toolTip">
-    <string>Loop options</string>
-   </property>
-  </action>
  </widget>
- <resources>
-  <include location="icons.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

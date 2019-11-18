@@ -25,6 +25,7 @@ public slots:
     void setBrush(const QBrush &brush);
     void setAntialiased(bool antialiased);
     void setValues(float* data, int length);
+    void resetSelectedShape();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
